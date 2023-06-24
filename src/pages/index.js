@@ -12,14 +12,14 @@ const makeSquares = (delay = 0) =>
     .fill(0)
     .map((_, idx) => (
       <Box
-        key={idx + delay * 1000} // Modified keys to ensure they are unique across groups
+        key={idx + delay * 1000}
         borderRadius="73px"
         width="434px"
         height="434px"
-        background="linear-gradient(45deg, #000000 0%, #171617 100%)"
+        background="linear-gradient(45deg, rgba(0, 0, 0, 1) 0%, rgba(112, 60, 212, 0.4) 100%)" // Added opacity to the purple color
         style={{ filter: "blur(12px)" }}
-        animation={`${slide} 40s linear infinite`} // Duration doubled
-        animationDelay={`${(idx / 72) * 40 + delay}s`} // Delay time also doubled
+        animation={`${slide} 40s linear infinite`}
+        animationDelay={`${(idx / 72) * 40 + delay}s`}
         gridColumn={(idx % 12) + 1}
         gridRow={Math.floor(idx / 12) + 1}
         zIndex="1"
