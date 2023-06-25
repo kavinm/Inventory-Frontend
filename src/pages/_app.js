@@ -1,4 +1,3 @@
-import { ChakraProvider } from "@chakra-ui/react";
 import "@rainbow-me/rainbowkit/styles.css";
 import {
   getDefaultWallets,
@@ -16,6 +15,15 @@ import {
 } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+import "../styles/custom-font.css";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+
+const theme = extendTheme({
+  fonts: {
+    body: "Graphik, sans-serif",
+    heading: "Graphik, sans-serif",
+  },
+});
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygon, optimism, arbitrum, polygonMumbai, sepolia],
@@ -50,7 +58,7 @@ function App({ Component, pageProps }) {
           overlayBlur: "small",
         })}
         chains={chains}>
-        <ChakraProvider>
+        <ChakraProvider theme={theme}>
           <Component {...pageProps} />
         </ChakraProvider>
       </RainbowKitProvider>

@@ -21,8 +21,7 @@ import {
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
-
-import { TokenboundClient } from "@tokenbound/sdk";
+import { prepareExecuteCall } from "@tokenbound/sdk-ethers";
 
 const NftView = () => {
   const router = useRouter();
@@ -73,24 +72,22 @@ const NftView = () => {
     const signer = provider.getSigner();
     const toAddress = address;
 
-    const tokenboundClient = new TokenboundClient({ signer, chainId: 137 });
-
     const erc721Interface = new ethers.utils.Interface([
       "function safeTransferFrom(address _from, address _to, uint256 _tokenId)",
     ]);
 
-    const txData = erc721Interface.encodeFunctionData("safeTransferFrom", [
+    const data = erc721Interface.encodeFunctionData("safeTransferFrom", [
       current6551Account,
       toAddress,
       tokenId,
     ]);
 
-    const transactionData = await tokenboundClient.prepareExecuteCall({
-      account: current6551Account,
-      to: contract,
-      value: 0n,
-      data: txData,
-    });
+    const transactionData = await prepareExecuteCall(
+      current6551Account,
+      contract,
+      0,
+      data
+    );
 
     await signer.sendTransaction(transactionData);
 

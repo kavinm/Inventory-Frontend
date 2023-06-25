@@ -19,13 +19,14 @@ import {
   Spinner,
   useDisclosure,
 } from "@chakra-ui/react";
+import NextLink from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/router";
 import axios from "axios";
 import QRCode from "qrcode.react";
 import { useAccount } from "wagmi";
 import { polygon } from "viem/chains";
-import { IDKitWidget } from "@worldcoin/idkit";
+import { IDKitWidget, ISuccessResult } from "@worldcoin/idkit";
 
 const MintNft = () => {
   const [collectionName, setCollectionName] = useState("");
@@ -57,7 +58,7 @@ const MintNft = () => {
     }
   }, [collectionAddress]);
 
-  const handleMint = async () => {
+  const handleMint = async (result) => {
     setIsLoading(true);
     if (!collectionAddress || !address) {
       console.log("Waiting for data...");
@@ -65,10 +66,16 @@ const MintNft = () => {
       return;
     }
     try {
-      console.log("API in try " + apiUrl);
-      const response = await axios.post(`${apiUrl}/mint`, {
+      console.log(result);
+      const response = await axios.post(`${apiUrl}/verify-and-mint`, {
         contractAddress: collectionAddress,
         address: address, // Use the connected address
+        nullifier_hash: result.nullifier_hash,
+        merkle_root: result.merkle_root,
+        proof: result.proof,
+        credential_type: result.credential_type,
+        action: "claim-inventory",
+        signal: "user_value",
       });
 
       console.log(response.data);
@@ -86,38 +93,64 @@ const MintNft = () => {
   };
 
   return (
-    <Box backgroundColor="#151516" minHeight="100vh">
-      <Flex
-        justifyContent="space-between"
-        alignItems="center"
-        backgroundColor="#151516"
-        color="white"
-        p={5}>
-        <Flex>
-          <Text fontSize="lg">Inventory</Text>
-          <Text color="#B36BFC" fontSize="50%" ml={2}>
-            Developer
+    <Box
+      width="100vw"
+      height="100vh"
+      background="#151516"
+      p={4}
+      overflowY="auto">
+      <Flex justify="space-between">
+        <Box display="flex" alignItems="center" as={NextLink} href="/">
+          <Box marginRight="10px">
+            <svg
+              width="43.5"
+              height="45"
+              viewBox="0 0 29 30"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect
+                width="29"
+                height="30"
+                rx="5"
+                fill="#D9D9D9"
+                fillOpacity="0.06"
+              />
+              <rect
+                x="0.5"
+                y="0.5"
+                width="28"
+                height="29"
+                rx="4.5"
+                stroke="white"
+                strokeOpacity="0.09"
+              />
+              <rect x="5" y="11" width="19" height="2" fill="white" />
+              <rect x="5" y="17" width="19" height="2" fill="white" />
+              <rect
+                x="13"
+                y="19"
+                width="8"
+                height="2"
+                transform="rotate(-90 13 19)"
+                fill="white"
+              />
+            </svg>
+          </Box>
+          <Text
+            fontFamily="Roboto, sans-serif"
+            lineHeight="1.2"
+            fontWeight="bold"
+            fontSize="25px"
+            color="#FFFFFF">
+            Inventory
           </Text>
-        </Flex>
-        <Box
-          borderRadius="65px"
-          backgroundColor="rgba(115, 101, 111, 0.1)"
-          px={4}
-          py={2}
-          display="flex"
-          alignItems="center"
-          position="absolute"
-          left="50%"
-          top="3.5%"
-          transform="translate(-50%, -50%)">
-          <Text color="#5C5C5C" pr={4}>
-            Create
-          </Text>
-          <Text color="White">Implement</Text>
         </Box>
         <ConnectButton />
       </Flex>
-      <Divider orientation="horizontal" mb={60} borderColor="#5C5C5C" />
+      <Box mt={8}>
+        <Divider orientation="horizontal" mb={60} borderColor="#5C5C5C" />
+      </Box>
+
       <Grid
         templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
         gap={10}
@@ -220,7 +253,7 @@ const MintNft = () => {
             <Text>Token ID: {transaction && transaction.tokenId}</Text>
             <Text mt={5}>
               <a
-                href={`https://opensea.io/assets/matic/${collectionAddress}/${
+                href={`https://testnets.opensea.io/assets/sepolia/${collectionAddress}/${
                   transaction && transaction.tokenId
                 }`}
                 target="_blank"

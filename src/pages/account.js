@@ -25,7 +25,7 @@ const Account = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [inventoryContractName, setInventoryContractName] = useState("");
   const [color, setColor] = useState("");
-  const totalSlots = 16; // set this to the total number of slots in your grid
+  const totalSlots = 16;
 
   useEffect(() => {
     const fetchNFTs = async () => {
@@ -42,14 +42,14 @@ const Account = () => {
         [
           "function name() view returns (string)",
           "function colour() view returns (string)",
-        ], // added colour function
+        ],
         provider
       );
       const contractName = await nftContract.name();
       setInventoryContractName(contractName);
 
-      const contractColor = await nftContract.colour(); // get color from contract
-      setColor(contractColor); // set color state variable
+      const contractColor = await nftContract.colour();
+      setColor(contractColor);
       console.log(contractColor);
 
       const res = await fetch(`/api/nfts?accountAddress=${accountAddress}`);
@@ -78,7 +78,6 @@ const Account = () => {
     nft.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // calculate empty slots for placeholder
   const emptySlots = totalSlots - filteredNfts.length;
 
   return (
@@ -89,20 +88,18 @@ const Account = () => {
       p={3.2}
       position="relative">
       <Flex justify="space-between" align="center">
-        <Text color="white" fontSize="3.2xl" ml={3.2}>
-          Your {inventoryName} Inventory
-        </Text>
-        <Flex position="absolute" top="160px" right="16px" align="center">
+        <Box position="absolute" top="16px" left="16px" align="center">
           <Button
             as={NextLink}
             href="/inventoryDash"
             mt={3.2}
-            mr={900}
             borderRadius="65px"
             backgroundColor="rgba(115, 101, 111, 0.1)"
             color="white">
             ← All Inventories
           </Button>
+        </Box>
+        <Box position="absolute" top="16px" right="16px" align="center">
           <Input
             placeholder="Search"
             value={searchTerm}
@@ -123,7 +120,7 @@ const Account = () => {
           <Text color="white" ml={3.2}>
             {filteredNfts.length} NFTs shown
           </Text>
-        </Flex>
+        </Box>
       </Flex>
 
       <Flex mt={3.2}>
@@ -134,23 +131,29 @@ const Account = () => {
           gap="8px"
           width="481.2px"
           height="608.4px"
-          background="linear-gradient(220deg, #b36bfc 0%, #5e37ce 100%)"
+          background="transparent"
           border="1px solid rgba(200, 200, 200, 0.12)"
           borderRadius="20.8px"
           boxShadow="0px 3.2px 3.2px rgba(0, 0, 0, 0.25)"
           marginTop="200px">
-          <Text color="white" fontSize="4xl" fontWeight="bold" mb={3.2}>
+          <Box
+            width="150px"
+            height="150px"
+            borderRadius="25px"
+            background={`linear-gradient(to top right, white, #${color})`}
+          />
+          <Text color="white" fontSize="6xl" fontWeight="bold" mb={3.2}>
             {inventoryContractName}
           </Text>
-          <Box width="50px" height="50px" background={"#" + color}></Box>
 
           <Text color="white" fontSize="lg">
-            {inventoryContractName} Inventory address:
+            TBA Address:
           </Text>
           <Text color="white" fontSize="sm" isTruncated>
             {TbaAddress}
           </Text>
         </Box>
+
         <Box
           ml={40}
           marginTop="200px"

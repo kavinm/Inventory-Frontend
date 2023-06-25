@@ -12,7 +12,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import axios from "axios";
 import { useAccount } from "wagmi";
 import { ethers } from "ethers";
-import Link from "next/link";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import {
   Modal,
@@ -23,9 +23,8 @@ import {
   ModalBody,
   Button,
   Divider,
+  Spinner,
 } from "@chakra-ui/react";
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const CollectionCard = ({ collection, ownedTokenIds }) => {
   const { name, contractAddress, color } = collection;
@@ -40,11 +39,17 @@ const CollectionCard = ({ collection, ownedTokenIds }) => {
 
   // Check if ownedTokenIds is defined and has at least one element
   const hasOwnedTokens = ownedTokenIds && ownedTokenIds.length > 0;
+  const hasMultipleTokenIds = ownedTokenIds && ownedTokenIds.length > 1;
 
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
-  const handleOpen = () => setIsOpen(true);
-
+  const handleOpen = () => {
+    if (hasMultipleTokenIds) {
+      setIsOpen(true);
+    } else if (ownedTokenIds && ownedTokenIds.length === 1) {
+      handleTokenClick(ownedTokenIds[0]);
+    }
+  };
   const handleTokenClick = (tokenId) => {
     router.push({
       pathname: "/account",
@@ -87,14 +92,14 @@ const CollectionCard = ({ collection, ownedTokenIds }) => {
         {contractAddress}
       </Text>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent bg="#151516" color="white">
-          <ModalHeader>Select account to view (by tokenId)</ModalHeader>
-          <ModalCloseButton color="white" />
-          <ModalBody>
-            {hasOwnedTokens ? (
-              ownedTokenIds.map((tokenId) => (
+      {hasMultipleTokenIds && (
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent bg="#151516" color="white">
+            <ModalHeader>Select account to view (by tokenId)</ModalHeader>
+            <ModalCloseButton color="white" />
+            <ModalBody>
+              {ownedTokenIds.map((tokenId) => (
                 <Button
                   mr="3%"
                   bg="linear-gradient(220deg, #b36bfc 0%, #6138cf 100%)"
@@ -102,13 +107,11 @@ const CollectionCard = ({ collection, ownedTokenIds }) => {
                   key={tokenId}>
                   {tokenId}
                 </Button>
-              ))
-            ) : (
-              <Text>No owned tokens</Text>
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+              ))}
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
     </Box>
   );
 };
@@ -116,13 +119,16 @@ const InventoryDash = () => {
   const [collections, setCollections] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { address, isConnecting, isDisconnected } = useAccount();
+  const [isLoading, setIsLoading] = useState(false);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     const fetchCollections = async () => {
+      setIsLoading(true);
       try {
         const response = await axios.get(`${apiUrl}/collections`);
         const provider = new ethers.providers.JsonRpcProvider(
-          "https://solemn-damp-layer.matic.discover.quiknode.pro/c692cad72ccd79420e11105cc7496b02d000ac19/"
+          "https://special-sly-gadget.ethereum-sepolia.discover.quiknode.pro/e9e3b0077c7614fb10f1a706e15daf860fcfe07b/"
         );
         const ownedCollections = [];
 
@@ -133,6 +139,8 @@ const InventoryDash = () => {
               contracts: [collection.contractAddress],
             },
           ]);
+          console.log(collection.contractAddress);
+          console.log(ownershipResult);
 
           if (
             ownershipResult &&
@@ -147,8 +155,10 @@ const InventoryDash = () => {
         }
 
         setCollections(ownedCollections);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching collections:", error);
+        setIsLoading(false);
       }
     };
 
@@ -172,9 +182,51 @@ const InventoryDash = () => {
       overflowY="auto">
       <Flex direction="column">
         <Flex justify="space-between">
-          <Heading color="white" fontSize="xl" mb="1%">
-            Inventory
-          </Heading>
+          <Box display="flex" alignItems="center">
+            <Box marginRight="10px" as={NextLink} href="/">
+              <svg
+                width="43.5"
+                height="45"
+                viewBox="0 0 29 30"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <rect
+                  width="29"
+                  height="30"
+                  rx="5"
+                  fill="#D9D9D9"
+                  fillOpacity="0.06"
+                />
+                <rect
+                  x="0.5"
+                  y="0.5"
+                  width="28"
+                  height="29"
+                  rx="4.5"
+                  stroke="white"
+                  strokeOpacity="0.09"
+                />
+                <rect x="5" y="11" width="19" height="2" fill="white" />
+                <rect x="5" y="17" width="19" height="2" fill="white" />
+                <rect
+                  x="13"
+                  y="19"
+                  width="8"
+                  height="2"
+                  transform="rotate(-90 13 19)"
+                  fill="white"
+                />
+              </svg>
+            </Box>
+            <Text
+              fontFamily="Roboto, sans-serif"
+              lineHeight="1.2"
+              fontWeight="bold"
+              fontSize="25px"
+              color="#FFFFFF">
+              Inventory
+            </Text>
+          </Box>
           <ConnectButton />
         </Flex>
         <Divider mt="1%" />
@@ -211,20 +263,26 @@ const InventoryDash = () => {
           />
         </Flex>
 
-        <Flex
-          direction="row"
-          height="auto"
-          overflowY="auto"
-          py={2}
-          justify="flex-start">
-          {filteredCollections.map((collection) => (
-            <CollectionCard
-              key={collection.contractAddress}
-              collection={collection}
-              ownedTokenIds={collection.ownedTokenIds}
-            />
-          ))}
-        </Flex>
+        {isLoading ? (
+          <Flex justify="center" align="center" height="100%">
+            <Spinner size="xl" color="purple.300" />
+          </Flex>
+        ) : (
+          <Flex
+            direction="row"
+            height="auto"
+            overflowY="auto"
+            py={2}
+            justify="flex-start">
+            {filteredCollections.map((collection) => (
+              <CollectionCard
+                key={collection.contractAddress}
+                collection={collection}
+                ownedTokenIds={collection.ownedTokenIds}
+              />
+            ))}
+          </Flex>
+        )}
       </Flex>
     </Box>
   );

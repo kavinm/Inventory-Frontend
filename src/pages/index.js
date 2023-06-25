@@ -56,24 +56,52 @@ const IndexPage = () => (
       left="50%"
       transform="translate(-50%, -50%)"
       zIndex="10">
-      <Image
-        src="https://firebasestorage.googleapis.com/v0/b/unify-v3-copy.appspot.com/o/cr966y2g9y-145%3A965?alt=media&token=82c4fb3c-d805-4fb7-ad81-cb4ee9a3dcdf"
-        alt="Inventory Icon"
-        boxSize="40px"
-      />
+      <Box marginRight="10px">
+        <svg
+          width="43.5"
+          height="45"
+          viewBox="0 0 29 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <rect
+            width="29"
+            height="30"
+            rx="5"
+            fill="#D9D9D9"
+            fill-opacity="0.06"
+          />
+          <rect
+            x="0.5"
+            y="0.5"
+            width="28"
+            height="29"
+            rx="4.5"
+            stroke="white"
+            stroke-opacity="0.09"
+          />
+          <rect x="5" y="11" width="19" height="2" fill="white" />
+          <rect x="5" y="17" width="19" height="2" fill="white" />
+          <rect
+            x="13"
+            y="19"
+            width="8"
+            height="2"
+            transform="rotate(-90 13 19)"
+            fill="white"
+          />
+        </svg>
+      </Box>
       <Text
-        fontFamily="Roboto, sans-serif"
+        fontFamily="'Graphik', sans-serif"
         lineHeight="1.2"
         fontWeight="bold"
-        fontSize="22px"
-        color="#FFFFFF"
-        marginRight="10px">
+        fontSize="25px"
+        color="#FFFFFF">
         Inventory
       </Text>
     </Box>
-
     <Text
-      fontFamily="Roboto, sans-serif"
+      fontFamily="'Graphik', sans-serif"
       lineHeight="0.97"
       fontWeight="bold"
       fontSize="55px"
@@ -92,7 +120,7 @@ const IndexPage = () => (
     <Button
       as={NextLink}
       href="/inventoryDash"
-      fontFamily="Roboto, sans-serif"
+      fontFamily="'Graphik', sans-serif"
       fontWeight="medium"
       fontSize="22px"
       letterSpacing="-0.01em"
@@ -112,7 +140,7 @@ const IndexPage = () => (
     <Link
       as={NextLink}
       href="/createHow"
-      fontFamily="Roboto, sans-serif"
+      fontFamily="'Graphik', sans-serif"
       fontWeight="medium"
       fontSize="22px"
       letterSpacing="-0.01em"
