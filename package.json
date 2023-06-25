@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.11.0",
     "@rainbow-me/rainbowkit": "^1.0.2",
     "@tokenbound/sdk-ethers": "^0.2.0",
+    "@worldcoin/idkit": "^0.5.1",
     "alchemy-sdk": "^2.9.0",
     "axios": "^1.4.0",
     "browserify-fs": "^1.0.0",

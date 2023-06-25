@@ -25,6 +25,7 @@ import axios from "axios";
 import QRCode from "qrcode.react";
 import { useAccount } from "wagmi";
 import { polygon } from "viem/chains";
+import { IDKitWidget } from "@worldcoin/idkit";
 
 const MintNft = () => {
   const [collectionName, setCollectionName] = useState("");
@@ -64,6 +65,7 @@ const MintNft = () => {
       return;
     }
     try {
+      console.log("API in try " + apiUrl);
       const response = await axios.post(`${apiUrl}/mint`, {
         contractAddress: collectionAddress,
         address: address, // Use the connected address
@@ -156,22 +158,33 @@ const MintNft = () => {
           <Text color="gray.300" fontSize="xl" mb={5}>
             Integrate this on your site with our documentation
           </Text>
-          <Button
-            mt={10}
-            display="flex"
-            flexDirection="row"
-            justifyContent="center"
-            alignItems="center"
-            p="25px 30px"
-            position="relative"
-            width="266px"
-            height="63px"
-            bgGradient="linear-gradient(219.66deg, #B36BFC 18.38%, #6138CF 94.58%)"
-            borderRadius="54px"
-            onClick={handleMint}
-            isLoading={isLoading}>
-            {isLoading ? <Spinner /> : "Mint Token"}
-          </Button>
+          <IDKitWidget
+            app_id="app_staging_204d7dd2d44ec1f37d0f6ecd4004789c" // obtained from the Developer Portal
+            action="claim-inventory" // this is your action identifier from the Developer Portal (can also be created on the fly)
+            signal="user_value" // any arbitrary value the user is committing to, e.g. for a voting app this could be the vote
+            onSuccess={handleMint}
+            credential_types={["orb", "phone"]} // the credentials you want to accept
+            walletConnectProjectId="9b196aefe31db1835e5755559aa57107" // optional, obtain from WalletConnect Portal
+            enableTelemetry>
+            {({ open }) => (
+              <Button
+                mt={10}
+                display="flex"
+                flexDirection="row"
+                justifyContent="center"
+                alignItems="center"
+                p="25px 30px"
+                position="relative"
+                width="266px"
+                height="63px"
+                bgGradient="linear-gradient(219.66deg, #B36BFC 18.38%, #6138CF 94.58%)"
+                borderRadius="54px"
+                onClick={open}
+                isLoading={isLoading}>
+                {isLoading ? <Spinner /> : "Mint Token"}
+              </Button>
+            )}
+          </IDKitWidget>
         </GridItem>
         <GridItem
           display="flex"
