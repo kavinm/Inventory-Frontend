@@ -126,7 +126,7 @@ const InventoryDash = () => {
     const fetchCollections = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${apiUrl}/collections`);
+        const response = await axios.get("/api/proxy");
         const provider = new ethers.providers.JsonRpcProvider(
           "https://special-sly-gadget.ethereum-sepolia.discover.quiknode.pro/e9e3b0077c7614fb10f1a706e15daf860fcfe07b/"
         );
