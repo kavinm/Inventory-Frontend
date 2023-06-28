@@ -19,32 +19,31 @@ import {
   Spinner,
   useDisclosure,
 } from "@chakra-ui/react";
-import NextLink from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/router";
 import axios from "axios";
 import QRCode from "qrcode.react";
 import { useAccount } from "wagmi";
-import { polygon } from "viem/chains";
-import { IDKitWidget, ISuccessResult } from "@worldcoin/idkit";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const MintNft = () => {
   const [collectionName, setCollectionName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [transaction, setTransaction] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [waitingForTx, setWaitingForTx] = useState(false);
 
   const router = useRouter();
   const { collectionAddress } = router.query;
   const { address, isConnecting, isDisconnected } = useAccount();
   const { onCopy, hasCopied } = useClipboard(router.asPath);
-  const polygonUrl = process.env.NEXT_PUBLIC_POLYGON_URL;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     if (collectionAddress) {
       const fetchCollectionName = async () => {
-        const provider = new ethers.providers.JsonRpcProvider(polygonUrl);
+        const provider = new ethers.providers.JsonRpcProvider(
+          "https://eth-sepolia.g.alchemy.com/v2/UzdW8jbBjtEUuntRHA_IEdNcGNTkAOAu"
+        );
         const nftContract = new ethers.Contract(
           collectionAddress,
           ["function name() view returns (string)"],
@@ -58,33 +57,30 @@ const MintNft = () => {
     }
   }, [collectionAddress]);
 
-  const handleMint = async (result) => {
+  const handleMint = async () => {
     setIsLoading(true);
+    setWaitingForTx(true);
     if (!collectionAddress || !address) {
       console.log("Waiting for data...");
       setIsLoading(false);
+      setWaitingForTx(false);
       return;
     }
     try {
-      console.log(result);
-      const response = await axios.post(`${apiUrl}/verify-and-mint`, {
+      const response = await axios.post(`${apiUrl}/mint`, {
         contractAddress: collectionAddress,
         address: address, // Use the connected address
-        nullifier_hash: result.nullifier_hash,
-        merkle_root: result.merkle_root,
-        proof: result.proof,
-        credential_type: result.credential_type,
-        action: "claim-inventory",
-        signal: "user_value",
       });
 
       console.log(response.data);
       setTransaction(response.data);
       setIsLoading(false);
+      setWaitingForTx(false);
       onOpen();
     } catch (error) {
       console.error("Error minting token:", error);
       setIsLoading(false);
+      setWaitingForTx(false);
     }
   };
 
@@ -100,7 +96,7 @@ const MintNft = () => {
       p={4}
       overflowY="auto">
       <Flex justify="space-between">
-        <Box display="flex" alignItems="center" as={NextLink} href="/">
+        <Box display="flex" alignItems="center">
           <Box marginRight="10px">
             <svg
               width="43.5"
@@ -161,63 +157,29 @@ const MintNft = () => {
           flexDirection="column"
           justifySelf={{ base: "center", md: "end" }}
           justifyContent="center">
-          <Flex align="center" mb={5}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 33 33"
-              width="33"
-              height="33"
-              fill="none">
-              <circle
-                cx="16.5"
-                cy="16.5"
-                r="16.5"
-                fill="#40D873"
-                fillOpacity="0.1"
-              />
-              <path
-                d="M10 17L14.5 21.5L24 12"
-                stroke="#40D873"
-                strokeWidth="2"
-              />
-            </svg>
-            <Text ml={2} color="green.500">
-              Success
-            </Text>
-          </Flex>
+          <Flex align="center" mb={5}></Flex>
           <Heading as="h2" size="2xl" color="white" mb={5}>
             Your inventory has been created
           </Heading>
           <Text color="gray.300" fontSize="xl" mb={5}>
-            Integrate this on your site with our documentation
+            Integrate this on your site with our documentations
           </Text>
-          <IDKitWidget
-            app_id="app_staging_204d7dd2d44ec1f37d0f6ecd4004789c" // obtained from the Developer Portal
-            action="claim-inventory" // this is your action identifier from the Developer Portal (can also be created on the fly)
-            signal="user_value" // any arbitrary value the user is committing to, e.g. for a voting app this could be the vote
-            onSuccess={handleMint}
-            credential_types={["orb", "phone"]} // the credentials you want to accept
-            walletConnectProjectId="9b196aefe31db1835e5755559aa57107" // optional, obtain from WalletConnect Portal
-            enableTelemetry>
-            {({ open }) => (
-              <Button
-                mt={10}
-                display="flex"
-                flexDirection="row"
-                justifyContent="center"
-                alignItems="center"
-                p="25px 30px"
-                position="relative"
-                width="266px"
-                height="63px"
-                bgGradient="linear-gradient(219.66deg, #B36BFC 18.38%, #6138CF 94.58%)"
-                borderRadius="54px"
-                onClick={open}
-                isLoading={isLoading}>
-                {isLoading ? <Spinner /> : "Mint Token"}
-              </Button>
-            )}
-          </IDKitWidget>
+          <Button
+            mt={10}
+            display="flex"
+            flexDirection="row"
+            justifyContent="center"
+            alignItems="center"
+            p="25px 30px"
+            position="relative"
+            width="266px"
+            height="63px"
+            bgGradient="linear-gradient(219.66deg, #B36BFC 18.38%, #6138CF 94.58%)"
+            borderRadius="54px"
+            onClick={handleMint}
+            isLoading={isLoading}>
+            {isLoading ? <Spinner /> : "Mint Token"}
+          </Button>
         </GridItem>
         <GridItem
           display="flex"
@@ -250,18 +212,24 @@ const MintNft = () => {
         <ModalContent bg="#151516" color="white">
           <ModalHeader>Your NFT was minted successfully!</ModalHeader>
           <ModalBody>
-            <Text>Token ID: {transaction && transaction.tokenId}</Text>
-            <Text mt={5}>
-              <a
-                href={`https://testnets.opensea.io/assets/sepolia/${collectionAddress}/${
-                  transaction && transaction.tokenId
-                }`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "#B36BFC", textDecoration: "underline" }}>
-                View on OpenSea
-              </a>
-            </Text>
+            {waitingForTx ? (
+              <Spinner />
+            ) : (
+              <>
+                <Text>Token ID: {transaction && transaction.tokenId}</Text>
+                <Text mt={5}>
+                  <a
+                    href={`https://testnets.opensea.io/assets/sepolia/${collectionAddress}/${
+                      transaction && transaction.tokenId
+                    }`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#B36BFC", textDecoration: "underline" }}>
+                    View on OpenSea
+                  </a>
+                </Text>
+              </>
+            )}
           </ModalBody>
           <ModalFooter justifyContent="center">
             <Button

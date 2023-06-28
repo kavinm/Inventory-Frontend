@@ -15,8 +15,6 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 
-const polygonUrl = process.env.NEXT_PUBLIC_POLYGON_URL;
-
 const Account = () => {
   const router = useRouter();
   const { contractAddress, tokenId, inventoryName } = router.query;
@@ -25,11 +23,13 @@ const Account = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [inventoryContractName, setInventoryContractName] = useState("");
   const [color, setColor] = useState("");
-  const totalSlots = 16;
+  const totalSlots = 16; // set this to the total number of slots in your grid
 
   useEffect(() => {
     const fetchNFTs = async () => {
-      const provider = new ethers.providers.JsonRpcProvider(polygonUrl);
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://eth-sepolia.g.alchemy.com/v2/UzdW8jbBjtEUuntRHA_IEdNcGNTkAOAu"
+      );
       const accountAddress = await getAccount(
         contractAddress,
         tokenId,
@@ -42,14 +42,14 @@ const Account = () => {
         [
           "function name() view returns (string)",
           "function colour() view returns (string)",
-        ],
+        ], // added colour function
         provider
       );
       const contractName = await nftContract.name();
       setInventoryContractName(contractName);
 
-      const contractColor = await nftContract.colour();
-      setColor(contractColor);
+      const contractColor = await nftContract.colour(); // get color from contract
+      setColor(contractColor); // set color state variable
       console.log(contractColor);
 
       const res = await fetch(`/api/nfts?accountAddress=${accountAddress}`);
@@ -78,6 +78,7 @@ const Account = () => {
     nft.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // calculate empty slots for placeholder
   const emptySlots = totalSlots - filteredNfts.length;
 
   return (

@@ -12,7 +12,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import axios from "axios";
 import { useAccount } from "wagmi";
 import { ethers } from "ethers";
-import NextLink from "next/link";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import {
   Modal,
@@ -25,6 +25,7 @@ import {
   Divider,
   Spinner,
 } from "@chakra-ui/react";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const CollectionCard = ({ collection, ownedTokenIds }) => {
   const { name, contractAddress, color } = collection;
@@ -38,8 +39,8 @@ const CollectionCard = ({ collection, ownedTokenIds }) => {
   const gradientId = `gradient-${contractAddress}`;
 
   // Check if ownedTokenIds is defined and has at least one element
-  const hasOwnedTokens = ownedTokenIds && ownedTokenIds.length > 0;
   const hasMultipleTokenIds = ownedTokenIds && ownedTokenIds.length > 1;
+  const hasOwnedTokens = ownedTokenIds && ownedTokenIds.length > 0;
 
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
@@ -120,15 +121,14 @@ const InventoryDash = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { address, isConnecting, isDisconnected } = useAccount();
   const [isLoading, setIsLoading] = useState(false);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     const fetchCollections = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get("/api/proxy");
+        const response = await axios.get(`${apiUrl}/collections`);
         const provider = new ethers.providers.JsonRpcProvider(
-          "https://special-sly-gadget.ethereum-sepolia.discover.quiknode.pro/e9e3b0077c7614fb10f1a706e15daf860fcfe07b/"
+          "https://solitary-dimensional-resonance.ethereum-sepolia.discover.quiknode.pro/f993e4f77c1dd3ce2e9cac4225d5b7683cbbef54/"
         );
         const ownedCollections = [];
 
@@ -183,7 +183,7 @@ const InventoryDash = () => {
       <Flex direction="column">
         <Flex justify="space-between">
           <Box display="flex" alignItems="center">
-            <Box marginRight="10px" as={NextLink} href="/">
+            <Box marginRight="10px">
               <svg
                 width="43.5"
                 height="45"
@@ -273,7 +273,8 @@ const InventoryDash = () => {
             height="auto"
             overflowY="auto"
             py={2}
-            justify="flex-start">
+            justify="flex-start"
+            marginTop="80px">
             {filteredCollections.map((collection) => (
               <CollectionCard
                 key={collection.contractAddress}

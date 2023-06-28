@@ -12,12 +12,12 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { SketchPicker } from "react-color";
-import NextLink from "next/link";
 import { useState } from "react";
 import { HuePicker } from "react-color";
 import { useRouter } from "next/router";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+console.log("This is the url: " + apiUrl);
 
 function CreateInput() {
   const router = useRouter();
@@ -88,7 +88,7 @@ function CreateInput() {
     <Box p={6} backgroundColor="#151516" color="white" minH="100vh">
       <Flex direction="column">
         <Flex justify="space-between">
-          <Box display="flex" alignItems="center" as={NextLink} href="/">
+          <Box display="flex" alignItems="center">
             <Box marginRight="10px">
               <svg
                 width="43.5"
