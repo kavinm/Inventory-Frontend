@@ -11,13 +11,13 @@ import {
   Divider,
   Spinner,
 } from "@chakra-ui/react";
-import { SketchPicker } from "react-color";
+
 import { useState } from "react";
 import { HuePicker } from "react-color";
 import { useRouter } from "next/router";
+import NextLink from "next/link";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-console.log("This is the url: " + apiUrl);
+import axios from "axios";
 
 function CreateInput() {
   const router = useRouter();
@@ -36,20 +36,19 @@ function CreateInput() {
   const handleButtonClick = async () => {
     setIsLoading(true); // Start loading
     try {
-      const response = await fetch(`${apiUrl}/create-collection`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: gameName,
-          color: color.slice(1),
-        }),
+      const response = await axios.post(`/api/createCollection`, {
+        name: gameName,
+        color: color.slice(1),
       });
 
-      const data = await response.json();
-      console.log(data);
-      router.push(`/mintNft?collectionAddress=${data.collectionAddress}`);
+      if (response.status === 200) {
+        console.log("Success:", response.data);
+      } else {
+        console.error("Error:", response.data);
+      }
+      router.push(
+        `/mintNft?collectionAddress=${response.data.collectionAddress}`
+      );
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -88,7 +87,7 @@ function CreateInput() {
     <Box p={6} backgroundColor="#151516" color="white" minH="100vh">
       <Flex direction="column">
         <Flex justify="space-between">
-          <Box display="flex" alignItems="center">
+          <Box display="flex" alignItems="center" as={NextLink} href="/">
             <Box marginRight="10px">
               <svg
                 width="43.5"

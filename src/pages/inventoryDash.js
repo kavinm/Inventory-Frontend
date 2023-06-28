@@ -12,7 +12,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import axios from "axios";
 import { useAccount } from "wagmi";
 import { ethers } from "ethers";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import {
   Modal,
@@ -25,6 +24,7 @@ import {
   Divider,
   Spinner,
 } from "@chakra-ui/react";
+import NextLink from "next/link";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const CollectionCard = ({ collection, ownedTokenIds }) => {
@@ -126,7 +126,7 @@ const InventoryDash = () => {
     const fetchCollections = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${apiUrl}/collections`);
+        const response = await axios.get("/api/collections");
         const provider = new ethers.providers.JsonRpcProvider(
           "https://solitary-dimensional-resonance.ethereum-sepolia.discover.quiknode.pro/f993e4f77c1dd3ce2e9cac4225d5b7683cbbef54/"
         );
@@ -182,7 +182,7 @@ const InventoryDash = () => {
       overflowY="auto">
       <Flex direction="column">
         <Flex justify="space-between">
-          <Box display="flex" alignItems="center">
+          <Box display="flex" alignItems="center" as={NextLink} href="/">
             <Box marginRight="10px">
               <svg
                 width="43.5"

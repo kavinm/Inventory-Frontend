@@ -24,6 +24,8 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import QRCode from "qrcode.react";
 import { useAccount } from "wagmi";
+import NextLink from "next/link";
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const MintNft = () => {
@@ -67,7 +69,7 @@ const MintNft = () => {
       return;
     }
     try {
-      const response = await axios.post(`${apiUrl}/mint`, {
+      const response = await axios.post("api/mint", {
         contractAddress: collectionAddress,
         address: address, // Use the connected address
       });
@@ -96,7 +98,7 @@ const MintNft = () => {
       p={4}
       overflowY="auto">
       <Flex justify="space-between">
-        <Box display="flex" alignItems="center">
+        <Box display="flex" alignItems="center" as={NextLink} href="/">
           <Box marginRight="10px">
             <svg
               width="43.5"
